@@ -1,16 +1,75 @@
-# React + Vite
+# Frontend (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains the frontend application built with React and Vite. It provides role-based dashboards, authentication, and services for managing users, vacancies, and applications.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Role-based dashboards (Administrador, Coder, Gestor)
+- Authentication and session management
+- API services for users, vacancies, applications, and auth (axios-based)
+- Reusable components and UI utilities
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React (JSX) with Vite
+- Axios for HTTP requests
+- ESLint for linting
+- Plain CSS modules and global styles
 
-## Expanding the ESLint configuration
+## Requirements
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Node.js (16+ recommended)
+- npm or yarn
+
+## Quick Start
+
+1. Install dependencies:
+
+```
+npm install
+```
+
+2. Start the development server with hot reload:
+
+```
+npm run dev
+```
+
+3. Build for production:
+
+```
+npm run build
+```
+
+4. Preview the production build locally:
+
+```
+npm run preview
+```
+
+Check `package.json` for additional available scripts (linting, formatting, etc.).
+
+## Project Structure (high level)
+
+- `src/` — main application source
+	- `api/` — API service modules (`usersService.js`, `vacanciesService.js`, etc.)
+	- `components/` — shared and layout components
+	- `contexts/` — React contexts such as `AuthContext`
+	- `hooks/` — custom hooks (e.g., `useAuth`)
+	- `pages/` — route pages including auth and dashboards
+	- `styles/` — global and component styles
+
+- `public/` — static assets
+- `plain/` — a minimal plain HTML/CSS/JS example
+
+## Environment
+
+If the app needs a backend API base URL, configure it in `src/api/axiosConfig.js` or an environment file such as `.env` with a variable like `VITE_API_BASE_URL`.
+
+## Contributing
+
+If you'd like to contribute, open an issue or submit a pull request describing your change. Keep changes focused and add tests where appropriate.
+
+## License
+
+This project does not include a license file. Add one if you plan to publish or share this repository.
