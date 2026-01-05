@@ -1,0 +1,22 @@
+.card.glass:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.table-row:hover {
+  border-color: rgba(124, 77, 255, 0.3);
+}
+
+.btn:not(.btn-ghost):active {
+  transform: translateY(0);
+}
+
+.input-inline {
+  display: flex;
+  gap: 8px;
+}
+
+.badge.gradient {
+  background: linear-gradient(135deg, rgba(124, 77, 255, 0.4), rgba(46, 211, 246, 0.3));
+}
