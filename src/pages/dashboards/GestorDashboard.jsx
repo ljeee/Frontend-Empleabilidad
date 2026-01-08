@@ -276,21 +276,33 @@ const GestorDashboard = () => {
         {!metricsModal.data ? (
           <LoadingSpinner message="Cargando métricas..." />
         ) : (
-          <div className="metrics-grid">
-            <MetricCard label="Aplicaciones" value={metricsModal.data.totalApplications || 0} accent="var(--accent-cyan)" />
-            <MetricCard label="Activas" value={metricsModal.data.activeApplications || 0} accent="var(--accent-purple)" />
-            <MetricCard label="Completadas" value={metricsModal.data.completedApplications || 0} accent="var(--accent-amber)" />
-            <div className="table">
-              <div className="table-row table-head">
-                <span>Nombre</span>
-                <span>Fecha</span>
-              </div>
-              {metricsModal.data.applicants?.map((applicant) => (
-                <div className="table-row" key={applicant.id}>
-                  <span>{applicant.name}</span>
-                  <span>{new Date(applicant.appliedAt).toLocaleDateString()}</span>
+          <div className="metrics-container">
+            <div className="metrics-grid">
+              <MetricCard label="Total Apps" value={metricsModal.data.totalApplications} accent="var(--accent-cyan)" />
+              <MetricCard label="Max Cupos" value={metricsModal.data.maxApplicants} accent="var(--accent-purple)" />
+              <MetricCard label="Disponibles" value={metricsModal.data.availableSpots ?? '-'} accent="var(--accent-amber)" />
+            </div>
+
+            <div className="table-wrap glass" style={{ marginTop: '2rem' }}>
+              <h4>Postulantes</h4>
+              <div className="table">
+                <div className="table-row table-head">
+                  <span>Usuario</span>
+                  <span style={{ textAlign: 'right' }}>Fecha</span>
                 </div>
-              ))}
+                {metricsModal.data.applicants && metricsModal.data.applicants.length > 0 ? (
+                  metricsModal.data.applicants.map((app) => (
+                    <div className="table-row" key={app.userId}>
+                      <span>{app.userName}</span>
+                      <span style={{ textAlign: 'right' }}>{new Date(app.appliedAt).toLocaleDateString()}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="table-row">
+                    <span className="muted">No hay postulantes aún.</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

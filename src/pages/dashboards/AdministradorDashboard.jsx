@@ -399,10 +399,34 @@ const AdministradorDashboard = () => {
         title={`Métricas: ${metricsModal.title}`}
       >
         {!metricsModal.data ? <LoadingSpinner /> : (
-          <div className="metrics-grid">
-            <MetricCard label="Total Apps" value={metricsModal.data.totalApplications} accent="var(--accent-cyan)" />
-            <MetricCard label="Activas" value={metricsModal.data.activeApplications} accent="var(--accent-purple)" />
-            <MetricCard label="Completas" value={metricsModal.data.completedApplications} accent="var(--accent-amber)" />
+          <div className="metrics-container">
+            <div className="metrics-grid">
+              <MetricCard label="Total Apps" value={metricsModal.data.totalApplications} accent="var(--accent-cyan)" />
+              <MetricCard label="Max Cupos" value={metricsModal.data.maxApplicants} accent="var(--accent-purple)" />
+              <MetricCard label="Disponibles" value={metricsModal.data.availableSpots ?? '-'} accent="var(--accent-amber)" />
+            </div>
+
+            <div className="table-wrap glass" style={{ marginTop: '2rem' }}>
+              <h4>Postulantes</h4>
+              <div className="table">
+                <div className="table-row table-head">
+                  <span>Usuario</span>
+                  <span style={{ textAlign: 'right' }}>Fecha</span>
+                </div>
+                {metricsModal.data.applicants && metricsModal.data.applicants.length > 0 ? (
+                  metricsModal.data.applicants.map((app) => (
+                    <div className="table-row" key={app.userId}>
+                      <span>{app.userName}</span>
+                      <span style={{ textAlign: 'right' }}>{new Date(app.appliedAt).toLocaleDateString()}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="table-row">
+                    <span className="muted">No hay postulantes aún.</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </Modal>
