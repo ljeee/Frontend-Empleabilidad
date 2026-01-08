@@ -1,44 +1,47 @@
-import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-const apiKey = import.meta.env.VITE_API_KEY
+import axios from 'axios';
+import Cookies from 'js-cookie';
+
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const apiKey = import.meta.env.VITE_API_KEY;
+const REFRESH_COOKIE = import.meta.env.VITE_REFRESH_COOKIE_NAME || 'empleabilidad_rt';
 
 const api = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
-})
+});
 
-const plainClient = axios.create({ baseURL })
+const plainClient = axios.create({ baseURL });
 
-let isRefreshing = false
-let refreshQueue = []
+let isRefreshing = false;
+let refreshQueue = [];
 
 const processQueue = (error, token = null) => {
   refreshQueue.forEach(({ resolve, reject }) => {
     if (token) {
-      resolve(token)
+      resolve(token);
     } else {
-      reject(error)
+      reject(error);
     }
-  })
-  refreshQueue = []
-}
+  });
+  refreshQueue = [];
+};
 
-const getStoredToken = () => localStorage.getItem('authToken')
-const getStoredRefreshToken = () => localStorage.getItem('refreshToken')
+const getStoredToken = () => localStorage.getItem('authToken');
+const getStoredRefreshToken = () => Cookies.get(REFRESH_COOKIE);
 
 api.interceptors.request.use((config) => {
   if (apiKey) {
-    config.headers['x-api-key'] = apiKey
+    config.headers['x-api-key'] = apiKey;
   }
-  const token = getStoredToken()
+  const token = getStoredToken();
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 
 api.interceptors.response.use(
   (response) => response,
@@ -50,45 +53,56 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    const refreshToken = getStoredRefreshToken()
+    const refreshToken = getStoredRefreshToken();
     if (!refreshToken) {
-      return Promise.reject(error)
+      return Promise.reject(error);
     }
 
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
-        refreshQueue.push({ resolve, reject })
+        refreshQueue.push({ resolve, reject });
       })
         .then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`
-          originalRequest._retry = true
-          return api(originalRequest)
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          originalRequest._retry = true;
+          return api(originalRequest);
         })
-        .catch(Promise.reject)
+        .catch(Promise.reject);
     }
 
-    originalRequest._retry = true
-    isRefreshing = true
+    originalRequest._retry = true;
+    isRefreshing = true;
 
     try {
-      const { data } = await plainClient.post('/auth/refresh', { refreshToken }, {
-        headers: { 'x-api-key': apiKey },
-      })
-      const newToken = data?.accessToken
+      const { data } = await plainClient.post(
+        '/auth/refresh',
+        { refresh_token: refreshToken },
+        { headers: { 'x-api-key': apiKey } }
+      );
+      const newToken = data?.access_token;
+      const newRefresh = data?.refresh_token;
       if (newToken) {
-        localStorage.setItem('authToken', newToken)
-        processQueue(null, newToken)
-        originalRequest.headers.Authorization = `Bearer ${newToken}`
-        return api(originalRequest)
+        localStorage.setItem('authToken', newToken);
+        if (newRefresh) {
+          Cookies.set(REFRESH_COOKIE, newRefresh, {
+            secure: true,
+            sameSite: 'strict',
+            expires: 7,
+            path: '/',
+          });
+        }
+        processQueue(null, newToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return api(originalRequest);
       }
-      processQueue(error, null)
-      return Promise.reject(error)
+      processQueue(error, null);
+      return Promise.reject(error);
     } catch (refreshError) {
-      processQueue(refreshError, null)
-      clearAuthStorage()
-      return Promise.reject(refreshError)
+      processQueue(refreshError, null);
+      clearAuthStorage();
+      return Promise.reject(refreshError);
     } finally {
-      isRefreshing = false
+      isRefreshing = false;
     }
   },
 )
@@ -99,17 +113,22 @@ const clearAuthStorage = () => {
   localStorage.removeItem('user')
 }
 
-const setAuthTokens = ({ accessToken, refreshToken, user }) => {
-  if (accessToken) {
-    localStorage.setItem('authToken', accessToken)
+const setAuthTokens = ({ access_token, refresh_token, user }) => {
+  if (access_token) {
+    localStorage.setItem('authToken', access_token);
   }
-  if (refreshToken) {
-    localStorage.setItem('refreshToken', refreshToken)
+  if (refresh_token) {
+    Cookies.set(REFRESH_COOKIE, refresh_token, {
+      secure: true,
+      sameSite: 'strict',
+      expires: 7,
+      path: '/',
+    });
   }
   if (user) {
-    localStorage.setItem('user', JSON.stringify(user))
+    localStorage.setItem('user', JSON.stringify(user));
   }
-}
+};
 
 const getStoredUser = () => {
   const raw = localStorage.getItem('user')
