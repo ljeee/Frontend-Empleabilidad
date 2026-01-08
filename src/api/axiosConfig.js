@@ -79,8 +79,9 @@ api.interceptors.response.use(
         { refresh_token: refreshToken },
         { headers: { 'x-api-key': apiKey } }
       );
-      const newToken = data?.access_token;
-      const newRefresh = data?.refresh_token;
+      const responseData = data?.data || data;
+      const newToken = responseData?.access_token || responseData?.accessToken;
+      const newRefresh = responseData?.refresh_token || responseData?.refreshToken;
       if (newToken) {
         localStorage.setItem('authToken', newToken);
         if (newRefresh) {
