@@ -9,5 +9,9 @@ const getAllApplications = async () => {
   const { data } = await api.get('/applications')
   return data?.data || data
 }
+const deleteApplication = async (id) => {
+  const { data } = await api.delete(`/applications/${id}`)
+  return data?.data || data
+}
 
-export { applyToVacancy, getAllApplications }
+export { applyToVacancy, getAllApplications, deleteApplication }

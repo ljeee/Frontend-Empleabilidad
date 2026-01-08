@@ -10,6 +10,7 @@ import {
   getAllMetrics,
   getAllVacancies,
   getVacancyMetrics,
+  deleteVacancy,
   toggleVacancyStatus,
   updateVacancy,
 } from '../../api/vacanciesService'
@@ -137,6 +138,17 @@ const GestorDashboard = () => {
     }
   }
 
+  const handleDeleteVacancy = async (id) => {
+    if (!window.confirm('¿Seguro que deseas eliminar esta vacante?')) return
+    try {
+      await deleteVacancy(id)
+      fetchData()
+    } catch (err) {
+      const message = err?.response?.data?.message || 'No pudimos eliminar la vacante'
+      setError(Array.isArray(message) ? message.join(', ') : message)
+    }
+  }
+
   return (
     <div className="page">
       <Navbar user={user} onLogout={logout} />
@@ -195,6 +207,7 @@ const GestorDashboard = () => {
                       {vacancy.isActive ? 'Pausar' : 'Activar'}
                     </Button>
                     <Button variant="ghost" onClick={() => handleMetrics(vacancy)}>Métricas</Button>
+                    <Button variant="danger" onClick={() => handleDeleteVacancy(vacancy.id)}>Eliminar</Button>
                   </span>
                 </div>
               ))}

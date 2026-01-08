@@ -27,6 +27,11 @@ const toggleVacancyStatus = async (id) => {
   return data?.data || data
 }
 
+const deleteVacancy = async (id) => {
+  const { data } = await api.delete(`/vacancies/${id}`)
+  return data?.data || data
+}
+
 const getAllMetrics = async () => {
   const { data } = await api.get('/vacancies/metrics')
   return data?.data || data
@@ -43,6 +48,7 @@ export {
   getAllVacancies,
   getVacancyById,
   getVacancyMetrics,
+  deleteVacancy,
   toggleVacancyStatus,
   updateVacancy,
 }

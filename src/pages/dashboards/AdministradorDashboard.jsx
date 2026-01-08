@@ -13,7 +13,7 @@ import {
   getAllMetrics,
   getVacancyMetrics
 } from '../../api/vacanciesService'
-import { getAllApplications } from '../../api/applicationsService'
+import { getAllApplications, deleteApplication } from '../../api/applicationsService'
 import { createUser, deleteUser, getAllUsers, updateUser } from '../../api/usersService'
 import useAuth from '../../hooks/useAuth'
 
@@ -152,6 +152,16 @@ const AdministradorDashboard = () => {
     }
   }
 
+  const handleDeleteVacancy = async (id) => {
+    if (!window.confirm('¿Seguro que deseas eliminar esta vacante?')) return
+    try {
+      await deleteVacancy(id)
+      fetchAll()
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Error al eliminar vacante')
+    }
+  }
+
   const handleVacancyMetrics = async (vacancy) => {
     try {
       const data = await getVacancyMetrics(vacancy.id)
@@ -253,6 +263,7 @@ const AdministradorDashboard = () => {
                         {vacancy.isActive ? 'Pausar' : 'Activar'}
                       </Button>
                       <Button variant="ghost" onClick={() => handleVacancyMetrics(vacancy)}>Métricas</Button>
+                      <Button variant="danger" onClick={() => handleDeleteVacancy(vacancy.id)}>Eliminar</Button>
                     </span>
                   </div>
                 ))}
@@ -272,12 +283,29 @@ const AdministradorDashboard = () => {
                   <span>Candidato</span>
                   <span>Vacante</span>
                   <span>Fecha</span>
+                  <span style={{ textAlign: 'right' }}>Acciones</span>
                 </div>
                 {applications.map((app) => (
                   <div className="table-row grid-applications" key={app.id}>
                     <span>{app.userName || app.user?.name}</span>
                     <span>{app.vacancyTitle || app.vacancy?.title}</span>
                     <span>{new Date(app.createdAt).toLocaleDateString()}</span>
+                    <span className="table-actions">
+                      <Button
+                        variant="danger"
+                        onClick={async () => {
+                          if (!window.confirm('¿Seguro que deseas eliminar esta aplicación?')) return
+                          try {
+                            await deleteApplication(app.id)
+                            fetchAll()
+                          } catch (err) {
+                            setError(err?.response?.data?.message || 'Error al eliminar aplicación')
+                          }
+                        }}
+                      >
+                        Eliminar
+                      </Button>
+                    </span>
                   </div>
                 ))}
               </div>
