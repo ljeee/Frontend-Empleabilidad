@@ -111,6 +111,11 @@ const clearAuthStorage = () => {
   localStorage.removeItem('authToken')
   localStorage.removeItem('refreshToken')
   localStorage.removeItem('user')
+  try {
+    Cookies.remove(REFRESH_COOKIE, { path: '/' })
+  } catch (e) {
+    // ignore
+  }
 }
 
 const setAuthTokens = ({ access_token, refresh_token, user }) => {
@@ -118,9 +123,10 @@ const setAuthTokens = ({ access_token, refresh_token, user }) => {
     localStorage.setItem('authToken', access_token);
   }
   if (refresh_token) {
+    const isSecure = typeof window !== 'undefined' && window.location?.protocol === 'https:'
     Cookies.set(REFRESH_COOKIE, refresh_token, {
-      secure: true,
-      sameSite: 'strict',
+      secure: isSecure,
+      sameSite: 'lax',
       expires: 7,
       path: '/',
     });
@@ -140,4 +146,4 @@ const getStoredUser = () => {
   }
 }
 
-export { api, baseURL, clearAuthStorage, getStoredUser, setAuthTokens, getStoredRefreshToken }
+export { api, plainClient, apiKey, baseURL, clearAuthStorage, getStoredUser, setAuthTokens, getStoredRefreshToken }
