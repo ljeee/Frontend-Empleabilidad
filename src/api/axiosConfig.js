@@ -140,4 +140,4 @@ const getStoredUser = () => {
   }
 }
 
-export { api, baseURL, clearAuthStorage, getStoredUser, setAuthTokens }
+export { api, baseURL, clearAuthStorage, getStoredUser, setAuthTokens, getStoredRefreshToken }

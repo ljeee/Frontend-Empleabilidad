@@ -14,6 +14,13 @@ const register = async (name, email, password) => {
   return payload
 }
 
+const refreshToken = async (refreshTokenValue) => {
+  const { data } = await api.post('/auth/refresh', { refresh_token: refreshTokenValue })
+  const payload = normalizeAuthPayload(data)
+  setAuthTokens(payload)
+  return payload
+}
+
 const logout = () => {
   clearAuthStorage()
 }
@@ -28,4 +35,4 @@ const normalizeAuthPayload = (responseBody) => {
   return { accessToken, refreshToken, user }
 }
 
-export { login, logout, register }
+export { login, logout, register, refreshToken }

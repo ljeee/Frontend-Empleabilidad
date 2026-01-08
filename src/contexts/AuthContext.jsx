@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import { login as loginRequest, logout as logoutRequest, register as registerRequest } from '../api/authService'
-import { clearAuthStorage, getStoredUser, setAuthTokens } from '../api/axiosConfig'
+import { login as loginRequest, logout as logoutRequest, register as registerRequest, refreshToken as refreshTokenRequest } from '../api/authService'
+import { clearAuthStorage, getStoredUser, setAuthTokens, getStoredRefreshToken } from '../api/axiosConfig'
 
 const AuthContext = createContext({
   user: null,
@@ -16,11 +16,39 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storedUser = getStoredUser()
-    if (storedUser) {
-      setUserState(storedUser)
+    const initializeAuth = async () => {
+      try {
+        const storedUser = getStoredUser()
+        const refreshToken = getStoredRefreshToken()
+        
+        // Si tenemos un refresh token, intentamos refrescar
+        if (refreshToken) {
+          try {
+            const payload = await refreshTokenRequest(refreshToken)
+            if (payload?.user) {
+              setUserState(payload.user)
+            } else if (storedUser) {
+              // Si el refresh fue exitoso pero no devuelve user, usamos el almacenado
+              setUserState(storedUser)
+            }
+          } catch (refreshError) {
+            // Si el refresh falla, limpiamos el storage y seguimos sin usuario
+            clearAuthStorage()
+            setUserState(null)
+          }
+        } else if (storedUser) {
+          // Si no hay refresh token pero sí hay usuario almacenado, lo recuperamos
+          setUserState(storedUser)
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error)
+        setUserState(null)
+      } finally {
+        setLoading(false)
+      }
     }
-    setLoading(false)
+
+    initializeAuth()
   }, [])
 
   const login = useCallback(async (email, password) => {
